@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: devnagari-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: devnagari_pg
+      POSTGRES_USER: devnagari
+      POSTGRES_PASSWORD: devnagari_secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - devnagari_pg_data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U devnagari -d devnagari_pg"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  devnagari_pg_data:
+    name: devnagari_pg_data

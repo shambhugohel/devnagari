@@ -1,0 +1,407 @@
+openapi: 3.0.3
+info:
+  title: Devnagari PG & Hostel Management API
+  description: Canonical REST API specification for Devnagari PG & Hostel operations.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local development server
+
+paths:
+  /auth/login:
+    post:
+      summary: Authenticate user
+      description: Validates staff or tenant credentials and returns a JWT with role and assigned branch scopes.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: rajesh@devnagari.com
+                password:
+                  type: string
+                  format: password
+                  example: "********"
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid credentials
+
+  /branches:
+    get:
+      summary: List accessible branches
+      description: Returns branches the authenticated user has permission to view.
+      responses:
+        '200':
+          description: List of branches
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BranchDto'
+
+  /dashboard/summary:
+    get:
+      summary: Retrieve dashboard metrics
+      parameters:
+        - name: branchId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Aggregated KPI metrics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardSummaryDto'
+
+  /residents:
+    get:
+      summary: List residents roster
+      parameters:
+        - name: branchId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [STAYING_NOW, CHECKED_OUT, ALL]
+        - name: query
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Resident records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResidentSummaryDto'
+
+  /residents/check-in:
+    post:
+      summary: Check in new resident
+      description: Atomically registers a tenant profile, assigns a bed, and records initial deposit obligations.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckInRequest'
+      responses:
+        '201':
+          description: Resident successfully onboarded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResidentSummaryDto'
+        '409':
+          description: Bed already occupied or reserved
+
+  /rooms/inventory:
+    get:
+      summary: Get live bed map and room inventory
+      parameters:
+        - name: branchId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Room and bed hierarchy
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RoomInventoryDto'
+
+  /billing/invoices:
+    get:
+      summary: Query resident invoices and dues
+      parameters:
+        - name: branchId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [PENDING, OVERDUE, DUE_TODAY, PARTIALLY_PAID, PAID]
+      responses:
+        '200':
+          description: List of invoices
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InvoiceDto'
+
+  /billing/payments:
+    post:
+      summary: Record payment receipt
+      description: Records received funds and allocates them to target invoice line items.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecordPaymentRequest'
+      responses:
+        '201':
+          description: Payment registered and allocated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentReceiptDto'
+
+components:
+  schemas:
+    AuthResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        user:
+          $ref: '#/components/schemas/UserDto'
+        assignedBranches:
+          type: array
+          items:
+            $ref: '#/components/schemas/BranchDto'
+
+    UserDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        fullName:
+          type: string
+        role:
+          type: string
+          enum: [ADMIN_OWNER, BRANCH_MANAGER, FRONT_DESK, CLEANING_STAFF, TENANT]
+
+    BranchDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        genderPolicy:
+          type: string
+          enum: [BOYS, GIRLS, CO_ED]
+        roomCount:
+          type: integer
+        totalBeds:
+          type: integer
+
+    DashboardSummaryDto:
+      type: object
+      properties:
+        totalBeds:
+          type: integer
+        occupiedBeds:
+          type: integer
+        availableBeds:
+          type: integer
+        occupancyPercentage:
+          type: number
+        availableBedRevenue:
+          type: number
+        pendingBillsCount:
+          type: integer
+        pendingDuesAmount:
+          type: number
+
+    ResidentSummaryDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        customerId:
+          type: string
+        fullName:
+          type: string
+        phone:
+          type: string
+        branchName:
+          type: string
+        roomNumber:
+          type: string
+        bedLabel:
+          type: string
+        isAc:
+          type: boolean
+        residentType:
+          type: string
+          enum: [STUDENT, WORKING_PROFESSIONAL]
+        monthlyRent:
+          type: number
+        nextDueDate:
+          type: string
+          format: date
+        kycStatus:
+          type: string
+          enum: [PENDING, VERIFIED, REJECTED]
+        pendingDues:
+          type: number
+
+    CheckInRequest:
+      type: object
+      required: [fullName, phone, residentType, bedId, monthlyRent, securityDepositAmount]
+      properties:
+        fullName:
+          type: string
+        phone:
+          type: string
+        residentType:
+          type: string
+          enum: [STUDENT, WORKING_PROFESSIONAL]
+        bedId:
+          type: string
+          format: uuid
+        monthlyRent:
+          type: number
+        securityDepositAmount:
+          type: number
+        startDate:
+          type: string
+          format: date
+
+    RoomInventoryDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        roomNumber:
+          type: string
+        floor:
+          type: integer
+        isAc:
+          type: boolean
+        sharingType:
+          type: string
+        rentPerBed:
+          type: number
+        beds:
+          type: array
+          items:
+            $ref: '#/components/schemas/BedInventoryDto'
+
+    BedInventoryDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        label:
+          type: string
+        status:
+          type: string
+          enum: [AVAILABLE, OCCUPIED, RESERVED, MAINTENANCE]
+        currentOccupantName:
+          type: string
+          nullable: true
+
+    InvoiceDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        invoiceNumber:
+          type: string
+        residentName:
+          type: string
+        category:
+          type: string
+        dueDate:
+          type: string
+          format: date
+        totalAmount:
+          type: number
+        paidAmount:
+          type: number
+        overdueCharge:
+          type: number
+        status:
+          type: string
+
+    RecordPaymentRequest:
+      type: object
+      required: [residentId, amount, paymentMode]
+      properties:
+        residentId:
+          type: string
+          format: uuid
+        amount:
+          type: number
+        paymentMode:
+          type: string
+          enum: [UPI, CASH, BANK_TRANSFER, OTHER]
+        transactionRef:
+          type: string
+        invoiceAllocations:
+          type: array
+          items:
+            type: object
+            properties:
+              invoiceId:
+                type: string
+                format: uuid
+              amount:
+                type: number
+
+    PaymentReceiptDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        receiptNumber:
+          type: string
+        amount:
+          type: number
+        paymentMode:
+          type: string
+        recordedAt:
+          type: string
+          format: date-time
