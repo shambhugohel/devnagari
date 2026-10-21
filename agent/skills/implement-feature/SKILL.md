@@ -5,7 +5,7 @@ Use this skill when developing any new user story, API endpoint, screen, or doma
 ---
 
 ## 1. Understand
-- Read [docs/PROJECT_SPEC.md](file:///Users/dev/P_PROJECT/DEVNAGRI/docs/PROJECT_SPEC.md).
+- Read [docs/PROJECT_SPEC.md](docs/PROJECT_SPEC.md).
 - Find the relevant approved requirements and business rules in `docs/product/`.
 - Inspect existing implementations and tests in `apps/web/` and `apps/api/`.
 - Identify relevant Architecture Decision Records (ADRs) in `docs/architecture/decisions/`.

@@ -225,7 +225,7 @@ components:
           type: string
         genderPolicy:
           type: string
-          enum: [BOYS, GIRLS, CO_ED]
+          enum: [BOYS, GIRLS, CO_LIVING]
         roomCount:
           type: integer
         totalBeds:

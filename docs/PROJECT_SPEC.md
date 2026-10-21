@@ -23,7 +23,7 @@
 ### 1.3 Active Branches in Scope **[Confirmed]**
 | Branch Code | Branch Name | Gender / Target | Current Rooms | Total Beds | Current Occupancy |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `SEC-08B` | **Devnagari Sector 8B** | Boys | 3 rooms | 7 beds | 50% (3/6 or 3/7) |
+| `SEC-08B` | **Devnagari Sector 8B** | Boys | 3 rooms | 6 beds | 50% (3/6 occupied) |
 | `SEC-01G` | **Devnagari Sector 1 Girls** | Girls | 2 rooms | 6 beds | 67% (4/6) |
 | `SEC-317G` | **Devnagari 317 Sector 8B Girls** | Girls | 2 rooms | 4 beds | 75% (3/4) |
 | `ASH-RAY` | **Devnagari Aashka Raysan** | Boys | 2 rooms | 7 beds | 29% (2/7) |
@@ -261,7 +261,7 @@ To eliminate race conditions when two front-desk managers attempt to allocate th
 
 ## 8. Database Tables & Architecture (Flyway V1 Full Parity Baseline)
 
-The database schema is fully defined in [`apps/api/src/main/resources/db/migration/V1__initial_schema.sql`](file:///Users/dev/P_PROJECT/DEVNAGRI/apps/api/src/main/resources/db/migration/V1__initial_schema.sql) and documented in detail in [`docs/architecture/domain-model.md`](file:///Users/dev/P_PROJECT/DEVNAGRI/docs/architecture/domain-model.md). All 8 domains and ~55 tables are approved:
+The database schema is fully defined in [`apps/api/src/main/resources/db/migration/V1__initial_schema.sql`](../apps/api/src/main/resources/db/migration/V1__initial_schema.sql) and documented in detail in [`docs/architecture/domain-model.md`](architecture/domain-model.md). The schema comprises 55 core domain entity tables plus 19 junction/child/event tables (74 total relations across all 8 business domains):
 
 ### 8.1 Domain Table Catalog
 * **1. Organization & Configuration:** `hostel_settings`, `branches`, `amenities`, `branch_amenities`, `sharing_types`, `room_item_types`, `cleaning_checklist_items`, `vendor_categories`, `message_templates`, `inquiry_followup_templates`, `faqs`, `branch_help_infos`, `document_sequences`.

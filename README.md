@@ -137,7 +137,8 @@ Any developer or AI coding assistant working on this codebase must adhere to:
 ## 🔄 Keeping Documentation & Code in Sync
 
 This project maintains a **Document-First Workflow**:
-- When business rules, pricing logic, or UI workflows change, update [docs/PROJECT_SPEC.md](file:///Users/dev/P_PROJECT/DEVNAGRI/docs/PROJECT_SPEC.md).
-- When API endpoints change, update [contracts/openapi.yaml](file:///Users/dev/P_PROJECT/DEVNAGRI/contracts/openapi.yaml).
-- When database tables change, add a new Flyway migration (`V2__...sql`) and update [docs/architecture/domain-model.md](file:///Users/dev/P_PROJECT/DEVNAGRI/docs/architecture/domain-model.md).
+- When business rules, pricing logic, or UI workflows change, update [docs/PROJECT_SPEC.md](docs/PROJECT_SPEC.md).
+- When API endpoints change, update [contracts/openapi.yaml](contracts/openapi.yaml).
+- When database tables change, add a new Flyway migration (`V2__...sql`) and update [docs/architecture/domain-model.md](docs/architecture/domain-model.md).
 - Run `./scripts/verify.sh` to validate the full stack before submitting PRs.
+

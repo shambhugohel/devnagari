@@ -8,7 +8,7 @@ description: Workflow for updating documentation and keeping docs/PROJECT_SPEC.m
 Maintain documentation integrity across all project repositories and docs.
 
 ## 1. Source of Truth Maintenance
-- [docs/PROJECT_SPEC.md](file:///Users/dev/P_PROJECT/DEVNAGRI/docs/PROJECT_SPEC.md) is the master specification.
+- [docs/PROJECT_SPEC.md](docs/PROJECT_SPEC.md) is the master specification.
 - If a business rule, status lifecycle, or entity model changes:
   1. Update the corresponding section in `docs/PROJECT_SPEC.md`.
   2. Increment specification version in header if substantive.
